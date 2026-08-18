@@ -1,0 +1,27 @@
+---
+description: SUPPORT preprocessing optimization handoff — pause/resume and sandbox rules
+alwaysApply: true
+---
+
+# SUPPORT optimization (multi-repo)
+
+When the user mentions preprocessing optimization, SUPPORT denoising, pack_B,
+defringed_v21, blocks/patches, fringe exacerbation, or suite2p/defringe handoff:
+
+1. **Start at** `notes/SESSION.md`. If status is `*_awaiting_*` or `paused_*`,
+   do not invent inference/retrain/param sweeps until the user agrees the next step.
+2. Read `notes/OPTIMIZATION_STATUS.md`, `notes/STRATEGY_PROPOSAL.md`, and
+   `notes/INCOMING_FROM_DEFRINGE.md` before proposing new work.
+3. **Sandbox only:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`
+   - Write trials under `support_runs/<tag>/` (+ `STATUS.md` in that tag).
+   - Never touch `mc_runs/`.
+   - Never overwrite `inputs/raw`, `inputs/defringed`, `inputs/support`.
+   - Full-stack v2.1 inputs: `inputs/defringed_v21/`.
+4. Known results: Phase A fringe findings; Phase B demoted `patch_interval=16`
+   (keep `[1,32,32]`). Retrain is highly recommendable once user unlocks it.
+5. After any session progress: update `notes/SESSION.md`, status, manifest, and
+   mirror into `support_runs/_handoff/`.
+6. Downstream card: `notes/HANDOFF_SUITE2P.md`. Overview collects status — do not
+   edit `figure_for_cAMP_Neu_paper` unless the user opens that repo.
+7. Prefer `python -m src.single_stack` for single-stack inference; keep
+   `bs_size=3` matching training unless explicitly retraining.
