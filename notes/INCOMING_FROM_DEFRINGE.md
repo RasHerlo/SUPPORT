@@ -42,5 +42,9 @@ Existing sandbox products (do not overwrite):
 | ChanB | `F:\SUPPORT trained\ChanB_trained\20250131_090838\model_10.pth` |
 
 `bs_size=3`, default inference via `python -m src.single_stack`  
-(`patch_size=[61,64,64]`, `patch_interval=[1,32,32]`).  
+(`patch_size=[61,64,64]`, `patch_interval=[1,32,32]`, **`include_first_last=mirror`**  
+so output keeps full temporal length; use `--include_first_last none` for old ±30 cut).  
+After denoise, **signature FFT QC runs by default** (`src/utils/fft_metrics.py` /
+`python -m src.score_denoise`): mean `cell_up_fringe_ok` promote gate + per-frame
+fringe tails. Opt out: `--no_score`. Boxes are separate (not in the PMT mask).  
 `model_10` = final of 10 training epochs (no separate val-best).

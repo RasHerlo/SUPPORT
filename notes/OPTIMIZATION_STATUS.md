@@ -1,13 +1,12 @@
 # SUPPORT optimization status (for overview repo)
 
-**Collected by (do not edit from here):** https://github.com/RasHerlo/figure_for_cAMP_Neu_paper  
-**Stage:** SUPPORT denoising  
+**Collected by:** https://github.com/RasHerlo/figure_for_cAMP_Neu_paper  
 **Repo:** https://github.com/RasHerlo/SUPPORT  
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`  
 **Manifest:** [`optimization_manifest.json`](optimization_manifest.json)  
-**Last updated:** 2026-08-18  
+**Last updated:** 2026-08-19  
 
-**Session:** Phase B complete — awaiting user on retrain / full-stack SUPPORT baseline (`SESSION.md`)
+**Session:** full-stack baseline complete — awaiting retrain / promote decision (`SESSION.md`)
 
 ---
 
@@ -18,22 +17,30 @@
 
 ---
 
-## Current inference approach
+## Current approach
 
 | Field | Value |
 |---|---|
-| **ID** | `support_model10_inference_baseline` |
-| **Checkpoint** | ChanA/B `model_10.pth` |
-| **patch_interval** | **Keep [1,32,32]** — Phase B i16 demoted |
-| **Full-stack v2.1 input** | `inputs/defringed_v21/ChanA\|B/*_stk_defringed_v21.tif` (**ready**) |
+| **ID** | `support_model10_on_defringed_v21` |
+| **ChanA model** | `F:\SUPPORT trained\ChanA_trained\20250130_131021\model_10.pth` |
+| **ChanB model** | `F:\SUPPORT trained\ChanB_trained\20250131_090838\model_10.pth` |
+| **Inference** | `patch_interval=[1,32,32]` (i16 demoted), `bs_size=3` |
+| **Full-stack tag** | `support_runs/fullstack_v21_model10/` |
+| **Status** | Baseline **done**; **not** suite2p-promote ready |
 
-### Phase B result (boxes)
+### Headline (full stack)
 
-`patch_interval` 16 vs 32 on pack_B 500fr: **no meaningful visual or metric gain** on boxes or fringe. Demote i16. Details: `support_runs/phaseB_interval16_packB_500fr/STATUS.md`.
+| Channel | Model | signature verdict | cell_r | fringe_r | Visual |
+|---|---|---|---:|---:|---|
+| ChanA | `...\20250130_131021\model_10.pth` | `no_sharpen_fringe_ok` | 0.48 | 0.49 | Strong tile grid on mean |
+| ChanB | `...\20250131_090838\model_10.pth` | `no_sharpen_fringe_ok` | 0.28 | 0.24 | Tile grid + edge banding |
 
-### Phase A result (fringe) — unchanged
+Legacy `|ky|>0.05` ChanA “1.59× amp” is **superseded** — signature family power **falls**.
+Metrics: `support_runs/fullstack_v21_model10/metrics/Chan*_signature_fft_metrics.json`
 
-ChanA SUPPORT amplifies fringe ~1.1× even after pack_B; ChanB benefits from pack_B before SUPPORT.
+Default pipelines now write these scores automatically after denoise
+(`src/utils/fft_metrics.py`, `--no_score` to skip).
+
 
 ---
 
@@ -41,40 +48,31 @@ ChanA SUPPORT amplifies fringe ~1.1× even after pack_B; ChanB benefits from pac
 
 | When | Attempt | Result | Artifacts |
 |---|---|---|---|
-| 2026-08-18 | Phase A pack_B vs raw 500fr | ChanA fringe amp; ChanB pack_B helps | `support_runs/packB_vs_raw_500fr/` |
-| 2026-08-18 | Phase B interval 16 | **No box gain** — demote | `support_runs/phaseB_interval16_packB_500fr/` |
-| — | Full-stack SUPPORT on `defringed_v21` | Not run yet | inputs ready |
-| — | Retrain on `defringed_v21` | Not started | gate open |
+| 2026-08-18 | Phase A 500fr pack_B vs raw | ChanA fringe amp; ChanB pack_B helps | `packB_vs_raw_500fr/` |
+| 2026-08-18 | Phase B interval 16 | Demoted — no box gain | `phaseB_interval16_packB_500fr/` |
+| 2026-08-19 | **Full-stack model_10 on defringed_v21** | ChanA amp **1.59×**; boxes clear on A/B means | `fullstack_v21_model10/` |
 
 ---
 
-## Retrain: necessary vs recommendable (current call)
+## Retrain: necessary vs recommendable
 
-**Verdict: highly recommendable; not yet strictly proven necessary.**
+**Verdict: recommendable; promote blocked mainly by boxes + no `cell_up_fringe_ok`.**
 
-| Evidence | Weight |
-|---|---|
-| Models trained on fringed data; ChanA fringe amp after defringe+SUPPORT | Strong → retrain likely needed for ChanA |
-| Inference tiling knob failed to fix boxes | Medium → boxes won’t be solved by interval alone; retrain may or may not help boxes |
-| Full-stack `defringed_v21` now available | Gate open → can train properly |
-| Have not yet run default SUPPORT on full `defringed_v21` | One baseline inference would confirm fringe amp on the *production* input before multi-hour retrain |
-
-**Practical recommendation:**  
-1. Optional cheap confirm: SUPPORT `model_10` + i32 on full `defringed_v21` (or 500fr slice from it) — expect ChanA fringe amp to persist.  
-2. Then **retrain** ChanA (and likely ChanB for consistency) on `defringed_v21`.  
-3. Re-run Phase A–style compare: new `model_10` vs old on held-out frames / metrics.  
-Until that beats old weights on fringe amp + visuals, keep calling it **recommendable**; after a failed full-v21 baseline (fringe still amplified) and especially after a successful new-vs-old bakeoff, call it **necessary for ChanA production**.
+Signature QC (2026-08-19) shows fringe **family power down** after SUPPORT on both
+channels (not exacerbated by the mask metric). Retrain still useful to match the
+defringed distribution and chase cell-band gain without tiles. Skipping SUPPORT
+and MC on `defringed_v21` alone remains valid.
 
 ---
 
 ## Handoffs
 
-- suite2p: still **no promote** (`HANDOFF_SUITE2P.md`)  
-- Defringe: full-stack v2.1 received under `inputs/defringed_v21/`  
+- suite2p: diagnostic full-stack paths in `HANDOFF_SUITE2P.md` — **no promote**  
+- Optional parallel path: MC directly on `inputs/defringed_v21/` without SUPPORT  
 - Overview: this file + manifest  
 
 ## Next (user choice)
 
-1. Full-stack SUPPORT baseline on `defringed_v21` (confirm)  
-2. Start retrain on `defringed_v21`  
-3. Park SUPPORT and let suite2p MC on defringed_v21 without SUPPORT first  
+1. Start retrain on `defringed_v21` (ChanA required; ChanB recommended)  
+2. Park SUPPORT; let suite2p MC on `defringed_v21` only  
+3. Promote diagnostic stacks only for inspection (not paper traces)  

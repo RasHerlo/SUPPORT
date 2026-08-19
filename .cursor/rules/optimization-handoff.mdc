@@ -24,4 +24,10 @@ defringed_v21, blocks/patches, fringe exacerbation, or suite2p/defringe handoff:
 6. Downstream card: `notes/HANDOFF_SUITE2P.md`. Overview collects status — do not
    edit `figure_for_cAMP_Neu_paper` unless the user opens that repo.
 7. Prefer `python -m src.single_stack` for single-stack inference; keep
-   `bs_size=3` matching training unless explicitly retraining.
+   `bs_size=3` matching training unless explicitly retraining. Default
+   `--include_first_last mirror` (full-length output); only use `none` if the
+   user asks for the old ±30-frame cut.
+8. After denoise, signature FFT QC runs by default (`src/utils/fft_metrics.py`):
+   mean `cell_up_fringe_ok` promote gate + per-frame fringe tails. Opt out with
+   `--no_score`. Standalone: `python -m src.score_denoise --pre ... --post ...`.
+   Boxes remain a separate visual/fail (not in the PMT family mask).

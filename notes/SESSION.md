@@ -5,15 +5,18 @@
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`
 
 ```yaml
-status: phaseB_complete_awaiting_next        # paused | active | parked
-strategy: agreed                             # proposed | agreed | superseded
-active_run_tag: phaseB_interval16_packB_500fr
-next_action: "User picks: full-stack SUPPORT baseline on defringed_v21 | start retrain | park"
+status: parked                               # paused | active | parked
+strategy: agreed
+active_run_tag: fullstack_v21_model10
+next_action: "Resume tomorrow — retrain / MC-on-v21 / next SUPPORT bakeoff (user choice)"
 do_not:
   - touch mc_runs/
   - overwrite inputs/raw|defringed|support
   - adopt patch_interval 16 as default (demoted)
-  - promote trial stacks without user OK
+  - promote fullstack_v21_model10 (boxes; no cell_up_fringe_ok)
+defaults:
+  include_first_last: mirror
+  signature_fft_score: on   # --no_score to skip
 ```
 
 ## Resume checklist (new day / new chat)

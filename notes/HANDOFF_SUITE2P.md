@@ -20,10 +20,11 @@ family not up. Tile grids are a separate fail.
   - **ChanA** `F:\SUPPORT trained\ChanA_trained\20250130_131021\model_10.pth`  
   - **ChanB** `F:\SUPPORT trained\ChanB_trained\20250131_090838\model_10.pth`  
   - on `inputs/defringed_v21/` → 5340-frame outputs  
-  - ChanA ridge amp **1.59×**; clear **box/tile** grid on A and B means  
-  - **Not promote-ready** for production MC/ROI  
+  - Signature QC: both `no_sharpen_fringe_ok` (fringe_power_ratio ≪ 1; cell also down)  
+  - Clear **box/tile** grid on A and B means → **not promote-ready**  
+  - Legacy `|ky|>0.05` ChanA 1.59× amp **superseded** by signature scores  
 - Phase B `patch_interval=16` remains **demoted**  
-- Retrain on `defringed_v21`: **necessary for ChanA** if SUPPORT stays in the path (user decision pending)
+- Default denoise path now emits signature FFT metrics automatically  
 
 **Reasonable now without SUPPORT:** MC bakeoff on `inputs/defringed_v21/` alone.
 

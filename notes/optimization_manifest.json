@@ -3,15 +3,15 @@
   "repo": "https://github.com/RasHerlo/SUPPORT",
   "overview_repo": "https://github.com/RasHerlo/figure_for_cAMP_Neu_paper",
   "sandbox_root": "F:\\bPACNewData2026\\PreProcessing Optimization\\Level3b copy",
-  "updated": "2026-08-18",
+  "updated": "2026-08-19",
   "session": {
-    "status": "phaseB_complete_awaiting_next",
-    "strategy": "agreed_phase_A_and_B",
-    "active_run_tag": "phaseB_interval16_packB_500fr"
+    "status": "fullstack_baseline_complete_awaiting_next",
+    "strategy": "agreed",
+    "active_run_tag": "fullstack_v21_model10"
   },
   "current_approach": {
-    "id": "support_model10_inference_baseline",
-    "status": "keep_patch_interval_32",
+    "id": "support_model10_on_defringed_v21",
+    "status": "baseline_done_not_promoted",
     "params": {
       "patch_size": [61, 64, 64],
       "patch_interval": [1, 32, 32],
@@ -19,27 +19,33 @@
     },
     "checkpoints": {
       "ChanA": "F:\\SUPPORT trained\\ChanA_trained\\20250130_131021\\model_10.pth",
-      "ChanB": "F:\\SUPPORT trained\\ChanB_trained\\20250131_090838\\model_10.pth"
+      "ChanB": "F:\\SUPPORT trained\\ChanB_trained\\20250131_090838\\model_10.pth",
+      "note": "Channel-specific model_10.pth files (not a shared checkpoint)"
     },
-    "defringed_v21_ready": {
+    "inputs": {
       "ChanA": "inputs/defringed_v21/ChanA/ChanA_stk_defringed_v21.tif",
       "ChanB": "inputs/defringed_v21/ChanB/ChanB_stk_defringed_v21.tif"
+    },
+    "outputs": {
+      "tag": "support_runs/fullstack_v21_model10",
+      "ChanA": "support_runs/fullstack_v21_model10/ChanA/ChanA_stk_defringed_v21_support.tif",
+      "ChanB": "support_runs/fullstack_v21_model10/ChanB/ChanB_stk_defringed_v21_support.tif",
+      "n_frames": 5340
+    },
+    "metrics": {
+      "ChanA_ridge_amp": 1.586,
+      "ChanB_ridge_amp": 0.617,
+      "json": "support_runs/fullstack_v21_model10/metrics/fullstack_v21_metrics.json"
     }
-  },
-  "phaseB": {
-    "tag": "support_runs/phaseB_interval16_packB_500fr",
-    "verdict": "demote_interval_16",
-    "one_liner": "More tile overlap does not fix boxes or fringe; keep interval 32",
-    "metrics_json": "support_runs/phaseB_interval16_packB_500fr/metrics/phaseB_metrics.json"
   },
   "retrain": {
     "gate_defringed_v21": "open",
-    "necessity": "highly_recommendable_not_strictly_proven",
+    "necessity": "necessary_for_ChanA_if_SUPPORT_in_production_path",
     "rationale": [
-      "ChanA fringe amplification after pack_B+SUPPORT with fringed-trained model_10",
-      "Phase B tiling knob failed — inference settings unlikely to fix main artifacts",
-      "Full-stack defringed_v21 now available for proper training distribution",
-      "Still optional: one SUPPORT baseline on full defringed_v21 before committing to retrain"
+      "Full-stack SUPPORT on defringed_v21 amplifies ChanA ridge 1.59x",
+      "Clear box/tile artifacts on ChanA and ChanB means",
+      "Phase B patch_interval 16 already demoted",
+      "Models trained on fringed distribution"
     ]
   },
   "approaches_tried": [
@@ -51,7 +57,12 @@
     {
       "id": "support_model10_packB_interval16",
       "status": "demoted",
-      "one_liner": "patch_interval 16 no meaningful box/fringe gain vs 32"
+      "one_liner": "No box/fringe gain vs interval 32"
+    },
+    {
+      "id": "support_model10_fullstack_defringed_v21",
+      "status": "baseline_done",
+      "one_liner": "ChanA amp 1.59x; boxes on A/B; not promote-ready"
     }
   ],
   "handoffs": {

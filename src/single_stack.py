@@ -8,6 +8,12 @@ from tqdm import tqdm
 
 from model.SUPPORT import SUPPORT
 from src.utils.dataset import DatasetSUPPORT_test_stitch
+from src.utils.fft_metrics import (
+    evaluate_denoise_pair,
+    infer_channel_letter,
+    resolve_signature,
+    write_metrics_json,
+)
 
 
 def validate(test_dataloader, model):
@@ -57,6 +63,50 @@ def default_output_path(stack_path):
     return f"{base}_denoised{ext or '.tif'}"
 
 
+def maybe_score(raw_image, denoised_stack, stack_path, output_path, args):
+    if args.no_score:
+        return None
+    channel = args.channel.upper() if args.channel else infer_channel_letter(stack_path, output_path)
+    try:
+        sig, sig_path = resolve_signature(
+            channel=channel,
+            signature=args.signature,
+            search_from=stack_path,
+        )
+    except (ValueError, FileNotFoundError) as exc:
+        print(f"Skipping FFT metrics: {exc}")
+        return None
+
+    result = evaluate_denoise_pair(
+        raw_image,
+        denoised_stack,
+        sig,
+        signature_path=sig_path,
+        frame_stride=args.score_frame_stride,
+        max_frames=args.score_max_frames,
+        skip_frames=args.score_mean_only,
+    )
+    result["pre_path"] = os.path.abspath(stack_path)
+    result["post_path"] = os.path.abspath(output_path)
+    result["channel"] = channel
+    result["model_path"] = os.path.abspath(args.model)
+    metrics_path = os.path.splitext(output_path)[0] + "_fft_metrics.json"
+    write_metrics_json(result, metrics_path)
+    m = result["mean"]
+    print(
+        f"FFT metrics ({metrics_path}): verdict={result['verdict']}  "
+        f"cell_ratio={m['cell_power_ratio']:.4f}  fringe_ratio={m['fringe_power_ratio']:.4f}"
+    )
+    if "frames" in result:
+        f = result["frames"]
+        print(
+            f"  frames: fringe median={f['fringe_power_ratio_median']:.4f}  "
+            f"p90={f['fringe_power_ratio_p90']:.4f}  "
+            f"frac>1.05={f['frac_frames_fringe_ratio_gt_1_05']:.3f}"
+        )
+    return metrics_path
+
+
 def main():
     parser = argparse.ArgumentParser(description='Denoise a single .tif stack using SUPPORT')
     parser.add_argument('--stack', type=str, required=True,
@@ -74,13 +124,27 @@ def main():
     parser.add_argument('--bs_size', type=int, default=3,
                         help='BS size parameter')
     parser.add_argument('--include_first_last', type=str,
-                        choices=[None, 'repeat', 'mirror'], default=None,
-                        help='How to handle first and last frames')
+                        choices=['mirror', 'repeat', 'none'], default='mirror',
+                        help='Pad temporal edges so output keeps full length '
+                             '(default: mirror). Use none to drop ±(T//2) frames.')
+    parser.add_argument('--signature', type=str, default=None,
+                        help='defringe signature.json for FFT QC (auto from ChanA/B if omitted)')
+    parser.add_argument('--channel', choices=['A', 'B', 'a', 'b'], default=None,
+                        help='Channel letter for default signature lookup')
+    parser.add_argument('--no_score', action='store_true',
+                        help='Skip signature FFT metrics after denoise')
+    parser.add_argument('--score_mean_only', action='store_true',
+                        help='Only score temporal means (skip per-frame tails)')
+    parser.add_argument('--score_frame_stride', type=int, default=1,
+                        help='Stride for per-frame fringe/cell ratios')
+    parser.add_argument('--score_max_frames', type=int, default=None,
+                        help='Optional cap on scored frames')
     args = parser.parse_args()
 
     stack_path = os.path.abspath(args.stack)
     model_path = os.path.abspath(args.model)
     output_path = os.path.abspath(args.output or default_output_path(stack_path))
+    edge_mode = None if args.include_first_last == 'none' else args.include_first_last
 
     if not os.path.isfile(stack_path):
         raise FileNotFoundError(f"Stack not found: {stack_path}")
@@ -101,6 +165,7 @@ def main():
     raw_image = skio.imread(stack_path)
     print(f"Input stack: {stack_path}")
     print(f"Shape: {raw_image.shape}, dtype: {raw_image.dtype}")
+    print(f"include_first_last: {args.include_first_last}")
 
     if (raw_image.shape[0] < args.patch_size[0]
             or raw_image.shape[1] < args.patch_size[1]
@@ -111,15 +176,15 @@ def main():
 
     demo_tif = torch.from_numpy(raw_image.astype(np.float32)).type(torch.FloatTensor)
 
-    if args.include_first_last == "repeat":
-        print('Warning: first and last frames will be padded by repeating boundary frames.')
+    if edge_mode == "repeat":
+        print('Padding temporal edges by repeating boundary frames (full-length output).')
         demo_tif = torch.cat([
             demo_tif[0, :, :].unsqueeze(0).repeat((args.patch_size[0] // 2, 1, 1)),
             demo_tif,
             demo_tif[-1, :, :].unsqueeze(0).repeat((args.patch_size[0] // 2, 1, 1)),
         ])
-    elif args.include_first_last == "mirror":
-        print('Warning: first and last frames will be padded by mirroring boundary frames.')
+    elif edge_mode == "mirror":
+        print('Padding temporal edges by mirroring boundary frames (full-length output).')
         demo_tif = torch.cat([
             demo_tif[1:(args.patch_size[0] // 2) + 1, :, :].flip(0),
             demo_tif,
@@ -135,7 +200,7 @@ def main():
     denoised_stack = validate(testloader, model)
 
     trim = (model.in_channels - 1) // 2
-    if args.include_first_last in ["repeat", "mirror"]:
+    if edge_mode in ["repeat", "mirror"]:
         denoised_stack = denoised_stack[args.patch_size[0] // 2:-1 * (args.patch_size[0] // 2)]
     else:
         denoised_stack = denoised_stack[trim:-trim, :, :]
@@ -144,6 +209,8 @@ def main():
     print(f"Saving denoised stack to: {output_path}")
     print(f"Output shape: {denoised_stack.shape}")
     skio.imsave(output_path, denoised_stack, metadata={'axes': 'TYX'})
+
+    maybe_score(raw_image, denoised_stack, stack_path, output_path, args)
 
 
 if __name__ == '__main__':
