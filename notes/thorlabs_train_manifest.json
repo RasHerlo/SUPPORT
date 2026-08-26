@@ -1,0 +1,64 @@
+{
+  "updated": "2026-08-20",
+  "computer": "THORLABS_30_016",
+  "root": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2",
+  "defringe_product": "Chan*_stk_defringed_v22.tif",
+  "status": "complete",
+  "note": "A train/holdout manifest is the explicit list of stacks used to train vs stacks reserved for testing the new model.",
+  "holdout": [
+    {
+      "trial": "260511\\C1_RLV_LW_maybe\\LED_x15_Level3b",
+      "reason": "Existing SUPPORT fullstack baseline FOV",
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level3b\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level3b\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    }
+  ],
+  "train_core": [
+    {
+      "trial": "260511\\C1_RLV_LW_maybe\\LED_x15_Level1",
+      "gb_approx": 2.83,
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level1\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level1\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    },
+    {
+      "trial": "260511\\C1_RLV_LW_maybe\\LED_x15_Level3",
+      "gb_approx": 2.83,
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level3\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level3\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    },
+    {
+      "trial": "260511\\C1_RLV_LW_maybe\\LED_x15_Level5_001",
+      "gb_approx": 2.83,
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level5_001\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level5_001\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    },
+    {
+      "trial": "260511\\C1_RLV_LW_maybe\\LED_x15_Level5b",
+      "gb_approx": 2.83,
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level5b\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260511\\C1_RLV_LW_maybe\\LED_x15_Level5b\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    },
+    {
+      "trial": "260516\\C1 LV\\BestAttempt980",
+      "gb_approx": 1.12,
+      "ChanA": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260516\\C1 LV\\BestAttempt980\\DATA\\ChanA\\ChanA_stk_defringed_v22.tif",
+      "ChanB": "F:\\bPACNewData2026\\AC_cAMP_Neu_Ca_C1_C2\\260516\\C1 LV\\BestAttempt980\\DATA\\ChanB\\ChanB_stk_defringed_v22.tif"
+    }
+  ],
+  "train_optional_extras": [
+    "260516\\C1 LRV\\920nm test",
+    "260516\\C1 LRV\\920nm test_001",
+    "260516\\Test\\LED again_002",
+    "260517\\C2 RV\\980nm test",
+    "260521\\RW\\1040nm test1",
+    "260521\\RW\\1040nm test2",
+    "260521\\RW\\980nm test2",
+    "260521\\RW\\980nm test_001"
+  ],
+  "exclude": [
+    "USER-PC (deferred)",
+    "needs_review stacks",
+    "tiny probes <~0.3GB",
+    "260510\\C1_RW\\Trial ChanB (~14MB)"
+  ]
+}
