@@ -14,7 +14,20 @@ family not up. Tile grids are a separate fail.
 
 ---
 
-## Current SUPPORT state (2026-08-19)
+## Current SUPPORT state (2026-08-27)
+
+Parked. Retrain on THORLABS defringed_v22 is **done**. Holdout bakeoff prefers
+the new models visually; **boxes remain** (esp. ChanB). **Not promote-ready.**
+
+Haj Grant ChanB stitch-grid forensics (no new denoise today):
+`F:\bPACNewData2026\Haj Grant Example\analysis\patch_grid_overview.pdf`
+— inputs have no boxes; old and new SUPPORT used the same `[61,64,64]` /
+`[1,32,32]`; old raw+2025 model is a weak 32-px seam; new v22+2026 model is
+the same geometry, much stronger. 2×2 not started.
+
+---
+
+## Earlier SUPPORT state (2026-08-19)
 
 - Full-stack baseline **done:** `support_runs/fullstack_v21_model10/`  
   - **ChanA** `F:\SUPPORT trained\ChanA_trained\20250130_131021\model_10.pth`  
@@ -52,9 +65,10 @@ family not up. Tile grids are a separate fail.
 ## Pipeline order
 
 ```text
-assemble → defringe v2.1 → SUPPORT (intended, needs retrain) → register → segment → traces
+assemble → defringe v2.2 → SUPPORT (optional; boxes still block promote) → register → segment → traces
 ```
 
-Until retrain wins a bakeoff, suite2p may proceed **defringe → register** on `defringed_v21`.
+Retrain is done; boxes still block promote. Suite2p may proceed
+**defringe → register** on v22 / `defringed_v21` without SUPPORT.
 
 Overview: https://github.com/RasHerlo/figure_for_cAMP_Neu_paper collects SUPPORT `notes/OPTIMIZATION_STATUS.md`.

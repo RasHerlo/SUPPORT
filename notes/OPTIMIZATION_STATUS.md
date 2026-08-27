@@ -4,9 +4,9 @@
 **Repo:** https://github.com/RasHerlo/SUPPORT  
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`  
 **Manifest:** [`optimization_manifest.json`](optimization_manifest.json)  
-**Last updated:** 2026-08-26  
+**Last updated:** 2026-08-27  
 
-**Session:** parked — THORLABS v22 retrain + Level3b bakeoff done; residual boxes next (`SESSION.md`)
+**Session:** parked 2026-08-27 — Haj Grant stitch-grid forensics done; 2×2 not started (`SESSION.md`)
 
 ---
 
@@ -55,14 +55,18 @@ Default pipelines now write these scores automatically after denoise
 | 2026-08-20–21 | THORLABS ChanA/B retrain on defringed_v22 | New `model_10` pair ready | `thorlabs_retrain_v22/`; `F:\SUPPORT trained\…\20260821_*` |
 | 2026-08-25 | Holdout bakeoff old vs new on Level3b v22 | New markedly better visually; residual ChanB boxes | `bakeoff_v22_Level3b/` (+ PDF/means) |
 | 2026-08-25 | Haj Grant ChanB smoke (new model) | Wrote `SUPPORT_v22_ChanB`; FFT `both_up` | `F:\…\Haj Grant Example\DATA\SUPPORT_v22_ChanB\` |
+| 2026-08-27 | Haj Grant stitch-grid forensics (no new denoise) | Inputs no boxes; old SUPPORT weak 32-px seam; new SUPPORT same geometry, stronger | `F:\…\Haj Grant Example\analysis\patch_grid_overview.pdf` |
 
 ---
 
 ## Retrain: necessary vs recommendable
 
 **Verdict: retrain done on THORLABS v22.** Promote still gated by residual boxes
-(stitch), not by lack of a defringed-trained model. Old ECF1 `SUPPORT_ChanB`
-used same batch defaults (user-confirmed); less-boxed look there ≠ special settings.
+(stitch), not by lack of a defringed-trained model. Haj Grant: old and new
+SUPPORT used the **same** `[61,64,64]` / `[1,32,32]`; inputs have no boxes;
+old SUPPORT on raw is a weak phase-15–17 seam; new SUPPORT on v22 is the
+same geometry locked on phase 16 and much stronger. Input vs model still
+confounded (2×2 not started).
 
 ---
 
@@ -71,8 +75,8 @@ used same batch defaults (user-confirmed); less-boxed look there ≠ special set
 - suite2p: diagnostic paths in `HANDOFF_SUITE2P.md` — **no full promote yet**  
 - Overview: this file + manifest + `SESSION.md`  
 
-## Next (user choice)
+## Next (parked — user unlock required)
 
-1. Box stitch bakeoff on new model (overlap and/or blending in `validate`)  
-2. If boxes OK for suite2p → `batch_denoise_v22` + `SUPPORT_v22_ChanA/B`  
-3. Park further SUPPORT; MC on defringed alone  
+1. Haj Grant 2×2: raw vs v22 × 2025 vs 2026 ChanB `model_10` (same patch settings)  
+2. If paradigm is the cause → stitch bakeoff (overlap / blending in `validate`)  
+3. If boxes OK for suite2p → `batch_denoise_v22` + `SUPPORT_v22_ChanA/B`  
