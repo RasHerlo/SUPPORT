@@ -18,7 +18,9 @@ defringed_v21, blocks/patches, fringe exacerbation, or suite2p/defringe handoff:
    - Never overwrite `inputs/raw`, `inputs/defringed`, `inputs/support`.
    - Full-stack v2.1 inputs: `inputs/defringed_v21/`.
 4. Known results: Phase A fringe findings; Phase B demoted `patch_interval=16`
-   (keep `[1,32,32]`). Retrain is highly recommendable once user unlocks it.
+   (keep `[1,32,32]`). Retrain on THORLABS v22 is **done**. Haj Grant stitch
+   winner is hard `[61,128,128]/[1,64,64]`; uniform `--stitch blend` is demoted.
+   Do not switch the 64/32 code default until the user unlocks it.
 5. After any session progress: update `notes/SESSION.md`, status, manifest, and
    mirror into `support_runs/_handoff/`.
 6. Downstream card: `notes/HANDOFF_SUITE2P.md`. Overview collects status — do not

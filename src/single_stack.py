@@ -16,41 +16,60 @@ from src.utils.fft_metrics import (
 )
 
 
-def validate(test_dataloader, model):
-    """
-    Validate a model with a test data
+def _coord(single_coordinate, key, bi):
+    return int(single_coordinate[key][bi])
 
-    Arguments:
-        test_dataloader: (Pytorch DataLoader)
-            Should be DatasetSUPPORT_test_stitch!
-        model: (Pytorch nn.Module)
 
-    Returns:
-        denoised_stack: denoised image stack (Numpy array with dimension [T, X, Y])
+def validate(test_dataloader, model, stitch="hard"):
+    """Stitch patch outputs into a stack.
+
+    hard: paste the central strip of each patch (historical DeepCAD cut).
+    blend: average the full patch wherever tiles overlap.
     """
+    if stitch not in ("hard", "blend"):
+        raise ValueError(f"Unknown stitch mode: {stitch}")
+
     with torch.no_grad():
         model.eval()
-        denoised_stack = np.zeros(test_dataloader.dataset.noisy_image.shape, dtype=np.float32)
+        shape = test_dataloader.dataset.noisy_image.shape
+        if stitch == "blend":
+            acc = np.zeros(shape, dtype=np.float64)
+            wsum = np.zeros(shape, dtype=np.float64)
+        else:
+            denoised_stack = np.zeros(shape, dtype=np.float32)
 
         for _, (noisy_image, _, single_coordinate) in enumerate(tqdm(test_dataloader, desc="Processing")):
             noisy_image = noisy_image.cuda()
             noisy_image_denoised = model(noisy_image)
             T = noisy_image.size(1)
             for bi in range(noisy_image.size(0)):
-                stack_start_w = int(single_coordinate['stack_start_w'][bi])
-                stack_end_w = int(single_coordinate['stack_end_w'][bi])
-                patch_start_w = int(single_coordinate['patch_start_w'][bi])
-                patch_end_w = int(single_coordinate['patch_end_w'][bi])
+                t = _coord(single_coordinate, "init_s", bi) + T // 2
+                if stitch == "blend":
+                    ih = _coord(single_coordinate, "init_h", bi)
+                    eh = _coord(single_coordinate, "end_h", bi)
+                    iw = _coord(single_coordinate, "init_w", bi)
+                    ew = _coord(single_coordinate, "end_w", bi)
+                    patch = noisy_image_denoised[bi].squeeze().detach().cpu().numpy()
+                    acc[t, ih:eh, iw:ew] += patch
+                    wsum[t, ih:eh, iw:ew] += 1.0
+                else:
+                    stack_start_w = _coord(single_coordinate, "stack_start_w", bi)
+                    stack_end_w = _coord(single_coordinate, "stack_end_w", bi)
+                    patch_start_w = _coord(single_coordinate, "patch_start_w", bi)
+                    patch_end_w = _coord(single_coordinate, "patch_end_w", bi)
+                    stack_start_h = _coord(single_coordinate, "stack_start_h", bi)
+                    stack_end_h = _coord(single_coordinate, "stack_end_h", bi)
+                    patch_start_h = _coord(single_coordinate, "patch_start_h", bi)
+                    patch_end_h = _coord(single_coordinate, "patch_end_h", bi)
+                    denoised_stack[t, stack_start_h:stack_end_h, stack_start_w:stack_end_w] = (
+                        noisy_image_denoised[bi].squeeze()[patch_start_h:patch_end_h, patch_start_w:patch_end_w].cpu()
+                    )
 
-                stack_start_h = int(single_coordinate['stack_start_h'][bi])
-                stack_end_h = int(single_coordinate['stack_end_h'][bi])
-                patch_start_h = int(single_coordinate['patch_start_h'][bi])
-                patch_end_h = int(single_coordinate['patch_end_h'][bi])
-
-                stack_start_s = int(single_coordinate['init_s'][bi])
-
-                denoised_stack[stack_start_s + (T // 2), stack_start_h:stack_end_h, stack_start_w:stack_end_w] \
-                    = noisy_image_denoised[bi].squeeze()[patch_start_h:patch_end_h, patch_start_w:patch_end_w].cpu()
+        if stitch == "blend":
+            denoised_stack = (acc / np.maximum(wsum, 1e-6)).astype(np.float32)
+            n_empty = int((wsum == 0).sum())
+            if n_empty:
+                print(f"Warning: {n_empty} pixels had no overlapping patch in blend stitch.")
 
         denoised_stack = denoised_stack * test_dataloader.dataset.std_image.numpy() \
             + test_dataloader.dataset.mean_image.numpy()
@@ -139,6 +158,9 @@ def main():
                         help='Stride for per-frame fringe/cell ratios')
     parser.add_argument('--score_max_frames', type=int, default=None,
                         help='Optional cap on scored frames')
+    parser.add_argument('--stitch', type=str, choices=['hard', 'blend'], default='hard',
+                        help='hard: paste central strip of each patch (default). '
+                             'blend: average full overlapping patches.')
     args = parser.parse_args()
 
     stack_path = os.path.abspath(args.stack)
@@ -166,6 +188,7 @@ def main():
     print(f"Input stack: {stack_path}")
     print(f"Shape: {raw_image.shape}, dtype: {raw_image.dtype}")
     print(f"include_first_last: {args.include_first_last}")
+    print(f"patch_size: {args.patch_size}  patch_interval: {args.patch_interval}  stitch: {args.stitch}")
 
     if (raw_image.shape[0] < args.patch_size[0]
             or raw_image.shape[1] < args.patch_size[1]
@@ -197,7 +220,7 @@ def main():
         patch_interval=args.patch_interval,
     )
     testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size)
-    denoised_stack = validate(testloader, model)
+    denoised_stack = validate(testloader, model, stitch=args.stitch)
 
     trim = (model.in_channels - 1) // 2
     if edge_mode in ["repeat", "mirror"]:

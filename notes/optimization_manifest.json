@@ -3,21 +3,27 @@
   "repo": "https://github.com/RasHerlo/SUPPORT",
   "overview_repo": "https://github.com/RasHerlo/figure_for_cAMP_Neu_paper",
   "sandbox_root": "F:\\bPACNewData2026\\PreProcessing Optimization\\Level3b copy",
-  "updated": "2026-08-27",
+  "updated": "2026-08-28",
   "session": {
     "status": "parked",
     "strategy": "agreed",
-    "active_run_tag": "bakeoff_v22_Level3b",
-    "next_action": "Haj Grant 2x2 (raw vs v22 x 2025 vs 2026 model_10) after user OK"
+    "active_run_tag": "stitch_troubleshoot",
+    "next_action": "After user OK: switch 2026-model infer to hard [61,128,128]/[1,64,64]. Do not default blend. Do not retrain. Do not promote."
   },
   "current_approach": {
     "id": "support_v22_thorlabs_bakeoff",
-    "status": "new_models_preferred_boxes_remain",
+    "status": "stitch_128_preferred_not_defaulted",
     "params": {
       "patch_size": [61, 64, 64],
       "patch_interval": [1, 32, 32],
       "bs_size": 3,
-      "include_first_last": "mirror"
+      "include_first_last": "mirror",
+      "stitch": "hard"
+    },
+    "preferred_infer_not_yet_default": {
+      "patch_size": [61, 128, 128],
+      "patch_interval": [1, 64, 64],
+      "stitch": "hard"
     },
     "checkpoints": {
       "ChanA_new": "F:\\SUPPORT trained\\ChanA_trained\\20260821_003756\\model_10.pth",
@@ -26,19 +32,20 @@
       "ChanB_old": "F:\\SUPPORT trained\\ChanB_trained\\20250131_090838\\model_10.pth"
     },
     "outputs": {
-      "tag": "support_runs/bakeoff_v22_Level3b"
+      "tag": "support_runs/stitch_troubleshoot"
     }
   },
   "haj_grant_boxes": {
     "working_copy": "F:\\bPACNewData2026\\Haj Grant Example\\DATA",
-    "pdf": "F:\\bPACNewData2026\\Haj Grant Example\\analysis\\patch_grid_overview.pdf",
-    "finding": "Inputs have no stitch boxes. Old and new SUPPORT used identical [61,64,64]/[1,32,32]. Old raw+2025 model: weak phase 15-17 seam. New v22+2026 model: same geometry locked on phase 16, much stronger. 2x2 not started.",
-    "expected_seam_phase_mod_32": 16
+    "pdf": "F:\\bPACNewData2026\\Haj Grant Example\\analysis\\haj_grant_stitch_trials.pdf",
+    "finding": "2x2: boxes are 2026 model at 64/32, not v22. One-tile: 64px output already has a 32px keep box. Stitch: hard 128/64 peak +0.56 vs baseline +1.54; uniform blend worse (+2.73 at phase 0); i16 +0.63 still demoted.",
+    "expected_seam_phase_mod_32": 16,
+    "preferred_geometry": [61, 128, 128]
   },
   "retrain": {
     "gate_defringed_v22": "done",
     "necessity": "done_on_thorlabs_v22",
-    "promote_gate": "residual_boxes_stitch"
+    "promote_gate": "residual_boxes_prefer_128_infer"
   },
   "approaches_tried": [
     {
@@ -64,12 +71,17 @@
     {
       "id": "bakeoff_v22_Level3b",
       "status": "done",
-      "one_liner": "New models preferred visually; residual ChanB boxes"
+      "one_liner": "New models preferred visually; ChanA boxes gone on holdout; residual ChanB boxes"
     },
     {
       "id": "haj_grant_stitch_grid_forensics",
+      "status": "done",
+      "one_liner": "Same patch geometry; boxes are SUPPORT stitch, stronger on 2026 model"
+    },
+    {
+      "id": "stitch_troubleshoot",
       "status": "done_parked",
-      "one_liner": "Same patch geometry; boxes are SUPPORT stitch, stronger on v22+new"
+      "one_liner": "hard 128/64 best; uniform blend worse (phase-0 seam); i16 still demoted"
     }
   ],
   "handoffs": {

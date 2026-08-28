@@ -4,9 +4,9 @@
 **Repo:** https://github.com/RasHerlo/SUPPORT  
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`  
 **Manifest:** [`optimization_manifest.json`](optimization_manifest.json)  
-**Last updated:** 2026-08-27  
+**Last updated:** 2026-08-28  
 
-**Session:** parked 2026-08-27 — Haj Grant stitch-grid forensics done; 2×2 not started (`SESSION.md`)
+**Session:** parked 2026-08-28 overnight — stitch trials done; prefer hard 128/64 infer (`SESSION.md`)
 
 ---
 
@@ -25,9 +25,10 @@
 | **ChanA model (new)** | `F:\SUPPORT trained\ChanA_trained\20260821_003756\model_10.pth` |
 | **ChanB model (new)** | `F:\SUPPORT trained\ChanB_trained\20260821_112325\model_10.pth` |
 | **Baseline models** | `…\20250130_131021` / `…\20250131_090838` |
-| **Inference** | `patch=[61,64,64]`, `interval=[1,32,32]`, `bs_size=3`, mirror |
+| **Inference (code default)** | `patch=[61,64,64]`, `interval=[1,32,32]`, `bs_size=3`, mirror, stitch=hard |
+| **Inference (stitch winner)** | `patch=[61,128,128]`, `interval=[1,64,64]` hard — not yet the code default |
 | **Bakeoff tag** | `support_runs/bakeoff_v22_Level3b/` |
-| **Status** | New models preferred visually; **boxes remain** (esp. ChanB) |
+| **Status** | New models preferred on holdout; Haj Grant ChanB boxes are 64-px infer geometry. Prefer hard **128/64**. |
 
 ### Headline (full stack)
 
@@ -56,17 +57,18 @@ Default pipelines now write these scores automatically after denoise
 | 2026-08-25 | Holdout bakeoff old vs new on Level3b v22 | New markedly better visually; residual ChanB boxes | `bakeoff_v22_Level3b/` (+ PDF/means) |
 | 2026-08-25 | Haj Grant ChanB smoke (new model) | Wrote `SUPPORT_v22_ChanB`; FFT `both_up` | `F:\…\Haj Grant Example\DATA\SUPPORT_v22_ChanB\` |
 | 2026-08-27 | Haj Grant stitch-grid forensics (no new denoise) | Inputs no boxes; old SUPPORT weak 32-px seam; new SUPPORT same geometry, stronger | `F:\…\Haj Grant Example\analysis\patch_grid_overview.pdf` |
+| 2026-08-28 | Haj Grant 2×2 raw/v22 × old/new model | **MODEL-driven.** New model ~6× seam on both inputs; v22 ≈ raw | `analysis/patch_grid_2x2.pdf`; `DATA/SUPPORT_2x2_*` |
+| 2026-08-28 | Level3b excess@16 + one-tile + Haj Grant stitch arms | Holdout ChanA boxes gone after retrain; one-tile already boxed at 64 px; **128/64 hard best** (peak +0.56 vs +1.54); uniform blend **worse** (peak +2.73 @ phase 0); i16 still demoted | `support_runs/stitch_troubleshoot/`; `analysis/haj_grant_stitch_trials.pdf`; `DATA/SUPPORT_stitch_ChanB/` |
 
 ---
 
 ## Retrain: necessary vs recommendable
 
-**Verdict: retrain done on THORLABS v22.** Promote still gated by residual boxes
-(stitch), not by lack of a defringed-trained model. Haj Grant: old and new
-SUPPORT used the **same** `[61,64,64]` / `[1,32,32]`; inputs have no boxes;
-old SUPPORT on raw is a weak phase-15–17 seam; new SUPPORT on v22 is the
-same geometry locked on phase 16 and much stronger. Input vs model still
-confounded (2×2 not started).
+**Verdict: retrain done on THORLABS v22.** Promote still gated by residual boxes.
+Haj Grant 2×2: boxes are **model-driven** at infer geometry `[61,64,64]/[1,32,32]`.
+Stitch trials (2026-08-28): **hard `[61,128,128]/[1,64,64]`** (train geometry) cuts
+the Haj Grant seam ~3×. Uniform `--stitch blend` moves the seam to phase 0 and
+makes it worse — do not default it. Interval 16 still demoted. No new retrain.
 
 ---
 
@@ -77,6 +79,5 @@ confounded (2×2 not started).
 
 ## Next (parked — user unlock required)
 
-1. Haj Grant 2×2: raw vs v22 × 2025 vs 2026 ChanB `model_10` (same patch settings)  
-2. If paradigm is the cause → stitch bakeoff (overlap / blending in `validate`)  
-3. If boxes OK for suite2p → `batch_denoise_v22` + `SUPPORT_v22_ChanA/B`  
+1. Confirm switching infer default to `[61,128,128]/[1,64,64]`  
+2. Do **not** default blend. Do **not** retrain. Do **not** promote.

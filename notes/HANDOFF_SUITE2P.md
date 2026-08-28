@@ -14,18 +14,18 @@ family not up. Tile grids are a separate fail.
 
 ---
 
-## Current SUPPORT state (2026-08-27)
+## Current SUPPORT state (2026-08-28)
 
-Parked. Retrain on THORLABS defringed_v22 is **done**. Holdout bakeoff prefers
-the new models visually; **boxes remain** (esp. ChanB). **Not promote-ready.**
+Parked overnight. Retrain on THORLABS defringed_v22 is **done**. Holdout bakeoff prefers
+the new models visually; ChanA boxes gone on Level3b; ChanB residual weaker.
+Haj Grant ChanB boxes are **64-px infer geometry** on the 2026 model (one-tile
+already boxed). Stitch winner: **hard `[61,128,128]/[1,64,64]`** (~3× weaker
+seam). Uniform blend is worse. **Not promote-ready** until infer geometry is
+decided and Level3b/Haj Grant look OK.
 
-Haj Grant ChanB stitch-grid forensics (no new denoise today):
-`F:\bPACNewData2026\Haj Grant Example\analysis\patch_grid_overview.pdf`
-— inputs have no boxes; old and new SUPPORT used the same `[61,64,64]` /
-`[1,32,32]`; old raw+2025 model is a weak 32-px seam; new v22+2026 model is
-the same geometry, much stronger. 2×2 not started.
-
----
+PDFs:
+- `F:\bPACNewData2026\Haj Grant Example\analysis\patch_grid_2x2.pdf`
+- `F:\bPACNewData2026\Haj Grant Example\analysis\haj_grant_stitch_trials.pdf`
 
 ## Earlier SUPPORT state (2026-08-19)
 
@@ -68,7 +68,8 @@ the same geometry, much stronger. 2×2 not started.
 assemble → defringe v2.2 → SUPPORT (optional; boxes still block promote) → register → segment → traces
 ```
 
-Retrain is done; boxes still block promote. Suite2p may proceed
+Retrain is done; boxes still block promote until infer geometry is 128/64
+(or equivalent) and visually OK. Suite2p may proceed
 **defringe → register** on v22 / `defringed_v21` without SUPPORT.
 
 Overview: https://github.com/RasHerlo/figure_for_cAMP_Neu_paper collects SUPPORT `notes/OPTIMIZATION_STATUS.md`.
