@@ -3,12 +3,12 @@
   "repo": "https://github.com/RasHerlo/SUPPORT",
   "overview_repo": "https://github.com/RasHerlo/figure_for_cAMP_Neu_paper",
   "sandbox_root": "F:\\bPACNewData2026\\PreProcessing Optimization\\Level3b copy",
-  "updated": "2026-08-28",
+  "updated": "2026-09-03",
   "session": {
-    "status": "parked",
+    "status": "awaiting_user",
     "strategy": "agreed",
-    "active_run_tag": "stitch_troubleshoot",
-    "next_action": "After user OK: switch 2026-model infer to hard [61,128,128]/[1,64,64]. Do not default blend. Do not retrain. Do not promote."
+    "active_run_tag": "haj_v4_bakeoff",
+    "next_action": "User visual QC of haj_v4_bakeoff_report.pdf (unreg + registered). Do not default blend. Do not retrain (incl. v4). Do not promote."
   },
   "current_approach": {
     "id": "support_v22_thorlabs_bakeoff",
@@ -32,7 +32,7 @@
       "ChanB_old": "F:\\SUPPORT trained\\ChanB_trained\\20250131_090838\\model_10.pth"
     },
     "outputs": {
-      "tag": "support_runs/stitch_troubleshoot"
+      "tag": "support_runs/haj_v4_bakeoff"
     }
   },
   "haj_grant_boxes": {
@@ -45,7 +45,7 @@
   "retrain": {
     "gate_defringed_v22": "done",
     "necessity": "done_on_thorlabs_v22",
-    "promote_gate": "residual_boxes_prefer_128_infer"
+    "promote_gate": "v4_bakeoff_old_wins_fft_new_fringe_amp_chanA"
   },
   "approaches_tried": [
     {
@@ -82,6 +82,11 @@
       "id": "stitch_troubleshoot",
       "status": "done_parked",
       "one_liner": "hard 128/64 best; uniform blend worse (phase-0 seam); i16 still demoted"
+    },
+    {
+      "id": "haj_v4_bakeoff",
+      "status": "done_awaiting_qc",
+      "one_liner": "Unreg+reg: old wins FFT gate; new ChanA fringe 1.40-1.46x; new ChanB seam on unreg"
     }
   ],
   "handoffs": {

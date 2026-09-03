@@ -1,25 +1,46 @@
 # SUPPORT session lock
 
-**Last updated:** 2026-08-28 (parked overnight)  
+**Last updated:** 2026-09-03 (v4 bakeoff includes registered; awaiting user QC)  
 **Repo:** https://github.com/RasHerlo/SUPPORT  
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`
 
 ```yaml
-status: parked
+status: awaiting_user
 strategy: agreed
-active_run_tag: stitch_troubleshoot
-next_action: "After user OK: switch 2026-model infer to hard [61,128,128]/[1,64,64] (optional batch_denoise too). Do not default blend. Do not retrain. Do not promote."
+active_run_tag: haj_v4_bakeoff
+next_action: "User visual QC of haj_v4_bakeoff_report.pdf (unreg + registered). Do not default blend. Do not retrain (incl. v4). Do not promote. Do not switch 64/32 code default."
 do_not:
   - touch mc_runs/
   - overwrite inputs/raw|defringed|support
   - train on USER-PC until more QC-ok data
   - train on holdout LED_x15_Level3b
   - overwrite Haj Grant SUPPORT_ChanB/ or SUPPORT_v22_ChanB/
+  - retrain on defringe v4
 defaults:
   include_first_last: mirror
   signature_fft_score: on
-  inference_patch: [61, 64, 64] / [1, 32, 32]   # still the code default; 128/64 is the stitch winner, not yet switched
+  inference_patch: [61, 64, 64] / [1, 32, 32]   # still the code default; this bakeoff used 128/64 on the CLI
 ```
+
+## Now (2026-09-03) — Haj Grant v4 bakeoff (unreg + registered)
+
+Same models/geometry on unregistered `defringed_v4` and suite2p-registered stacks.  
+PDF: `support_runs/haj_v4_bakeoff/haj_v4_bakeoff_report.pdf`  
+Unreg: `F:\bPACNewData2026\Haj Grant Example\DATA\SUPPORT_v4_bakeoff\`  
+Reg: `…\SUPPORT_v4_bakeoff\reg\`
+
+| Arm | cell | fringe | FFT | stitch @32 / peak |
+|---|---:|---:|---|---|
+| unreg old ChanA | 1.036 | 1.014 | `cell_up_fringe_ok` | +0.21 / @11 +1.65 |
+| unreg new ChanA | 1.393 | **1.396** | `both_up` | +0.18 / @10 +1.43 |
+| unreg old ChanB | 1.105 | **0.906** | `cell_up_fringe_ok` | +0.15 / @41 +0.41 |
+| unreg new ChanB | 1.407 | 1.056 | `both_up` | **+0.527 @32** |
+| reg old ChanA | 1.066 | 1.059 | `both_up` | −0.18 / @10 +1.46 |
+| reg new ChanA | 1.465 | **1.459** | `both_up` | −0.46 / @10 +1.47 |
+| reg old ChanB | 1.112 | 1.010 | `cell_up_fringe_ok` | +0.09 / @42 +0.34 |
+| reg new ChanB | 1.395 | 1.070 | `both_up` | +0.28 / @42 +0.39 |
+
+Registration does **not** rescue the 2026 models. New ChanA still amplifies fringe; new ChanB seam is weaker after MC but FFT still `both_up`. Old models still win the artifact goal. Not promote-ready.
 
 ## Results to remember
 
@@ -101,12 +122,12 @@ Retrain **killed ChanA boxes** on the holdout and **lowered ChanB absolute seam*
 
 ## Tomorrow (do not start until unlocked)
 
-1. **Switch infer default** to hard `[61,128,128]/[1,64,64]` in `src/single_stack.py` (and optionally `batch_denoise`) if the user agrees. That matches training (`src/utils/util.py`) and was the stitch winner.
-2. Do **not** default `--stitch blend` (phase-0 seam worse than hard 64/32). Leave the flag; it is demoted.
-3. Do **not** retrain. Do **not** promote to suite2p.
+1. User visual QC of `haj_v4_bakeoff_report.pdf`. Optional: same bakeoff on the registered stacks.
+2. Do **not** default `--stitch blend`. Do **not** retrain (including not on v4). Do **not** promote.
+3. Do **not** switch the 64/32 infer code default yet — on Haj Grant v4 the 2026 models fail the fringe gate even at 128/64.
 4. Do **not** rerun the Haj Grant stitch arms — stacks are already on disk under `DATA/SUPPORT_stitch_ChanB/`.
 
-Open first: this file, then `haj_grant_stitch_trials.pdf`.
+Open first: this file, then `haj_v4_bakeoff_report.pdf`.
 
 ## Resume checklist (new day / new chat)
 

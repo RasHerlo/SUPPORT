@@ -4,9 +4,9 @@
 **Repo:** https://github.com/RasHerlo/SUPPORT  
 **Sandbox:** `F:\bPACNewData2026\PreProcessing Optimization\Level3b copy`  
 **Manifest:** [`optimization_manifest.json`](optimization_manifest.json)  
-**Last updated:** 2026-08-28  
+**Last updated:** 2026-09-03  
 
-**Session:** parked 2026-08-28 overnight — stitch trials done; prefer hard 128/64 infer (`SESSION.md`)
+**Session:** awaiting user QC — Haj Grant v4 bakeoff scored; old models win FFT gate (`SESSION.md`)
 
 ---
 
@@ -59,16 +59,18 @@ Default pipelines now write these scores automatically after denoise
 | 2026-08-27 | Haj Grant stitch-grid forensics (no new denoise) | Inputs no boxes; old SUPPORT weak 32-px seam; new SUPPORT same geometry, stronger | `F:\…\Haj Grant Example\analysis\patch_grid_overview.pdf` |
 | 2026-08-28 | Haj Grant 2×2 raw/v22 × old/new model | **MODEL-driven.** New model ~6× seam on both inputs; v22 ≈ raw | `analysis/patch_grid_2x2.pdf`; `DATA/SUPPORT_2x2_*` |
 | 2026-08-28 | Level3b excess@16 + one-tile + Haj Grant stitch arms | Holdout ChanA boxes gone after retrain; one-tile already boxed at 64 px; **128/64 hard best** (peak +0.56 vs +1.54); uniform blend **worse** (peak +2.73 @ phase 0); i16 still demoted | `support_runs/stitch_troubleshoot/`; `analysis/haj_grant_stitch_trials.pdf`; `DATA/SUPPORT_stitch_ChanB/` |
+| 2026-09-03 | Haj Grant v4 old vs new at hard 128/64 | Old hits `cell_up_fringe_ok`; new ChanA fringe **1.40×** (`both_up`); new ChanB seam **+0.527 @32**. Not promote | `support_runs/haj_v4_bakeoff/`; `DATA/SUPPORT_v4_bakeoff/` |
+| 2026-09-03 | Same bakeoff on registered stacks | MC does not rescue 2026 models. Reg new ChanA fringe **1.46×**; reg old ChanB still passes. | `DATA/SUPPORT_v4_bakeoff/reg/` |
 
 ---
 
 ## Retrain: necessary vs recommendable
 
-**Verdict: retrain done on THORLABS v22.** Promote still gated by residual boxes.
-Haj Grant 2×2: boxes are **model-driven** at infer geometry `[61,64,64]/[1,32,32]`.
-Stitch trials (2026-08-28): **hard `[61,128,128]/[1,64,64]`** (train geometry) cuts
-the Haj Grant seam ~3×. Uniform `--stitch blend` moves the seam to phase 0 and
-makes it worse — do not default it. Interval 16 still demoted. No new retrain.
+**Verdict: retrain done on THORLABS v22.** Promote still gated.
+Haj Grant v4 bakeoff (2026-09-03, hard 128/64): **old 2025 models** hit
+`cell_up_fringe_ok`; **new 2026** fail it (ChanA fringe 1.40×). New ChanB still
+has a phase-32 seam (+0.527, same family as v22 128/64). Do not retrain on v4.
+Uniform blend still demoted. Interval 16 still demoted. 64/32 code default not switched.
 
 ---
 
@@ -77,7 +79,8 @@ makes it worse — do not default it. Interval 16 still demoted. No new retrain.
 - suite2p: diagnostic paths in `HANDOFF_SUITE2P.md` — **no full promote yet**  
 - Overview: this file + manifest + `SESSION.md`  
 
-## Next (parked — user unlock required)
+## Next (awaiting user)
 
-1. Confirm switching infer default to `[61,128,128]/[1,64,64]`  
-2. Do **not** default blend. Do **not** retrain. Do **not** promote.
+1. Visual QC of `haj_v4_bakeoff_report.pdf` (now includes registered arms).
+2. Do **not** default blend. Do **not** retrain (including not on v4). Do **not** promote.
+3. Do **not** switch the 64/32 code default yet.
